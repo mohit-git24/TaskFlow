@@ -1,32 +1,152 @@
 import { useState } from "react";
 import API from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
+import mark from "../assets/taskflow-mark.svg";
 
 export default function Signup() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [status, setStatus] = useState({ type: "idle", message: "" });
   const navigate = useNavigate();
 
-  const handleSignup = async () => {
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setStatus({ type: "idle", message: "" });
     try {
-      await API.post("/auth/signup", { email, password });
-      alert("Signup successful");
+      if (!username.trim() || !password) {
+        setStatus({ type: "error", message: "Enter a username and a password." });
+        return;
+      }
+      if (password.length < 6) {
+        setStatus({ type: "error", message: "Password should be at least 6 characters." });
+        return;
+      }
+      setStatus({ type: "loading", message: "" });
+      await API.post("/auth/signup", { username, email: email.trim() ? email : undefined, password });
+      setStatus({ type: "success", message: "Account created. You can log in now." });
       navigate("/");
     } catch {
-      alert("Signup failed");
+      setStatus({ type: "error", message: "Signup failed. Try a different username (or email)." });
     }
   };
 
   return (
-    <div>
-      <h2>TaskFlow Signup</h2>
+    <div className="tf-shell">
+      <div className="tf-frame" role="main">
+        <section className="tf-brand" aria-label="TaskFlow introduction">
+          <div className="tf-kicker">TaskFlow</div>
+          <img className="tf-mark" src={mark} alt="" aria-hidden="true" />
+          <h1 className="tf-title">Make tasks feel finite.</h1>
+          <p className="tf-subtitle">
+            Create an account to save your tasks. Keep your list clean, your priorities obvious, and your week under
+            control.
+          </p>
+        </section>
 
-      <input placeholder="Email" onChange={(e)=>setEmail(e.target.value)} />
-      <input type="password" onChange={(e)=>setPassword(e.target.value)} />
+        <section className="tf-card" aria-label="Sign up">
+          <h2 className="tf-h1">Create account</h2>
+          <p className="tf-help" style={{ marginTop: "8px" }}>
+            Use a real email format; passwords are stored securely on the server.
+          </p>
 
-      <button onClick={handleSignup}>Signup</button>
+          <form className="tf-form" onSubmit={handleSignup} style={{ marginTop: "16px" }}>
+            <div className="tf-field">
+              <div className="tf-labelRow">
+                <label className="tf-label" htmlFor="username">
+                  Username
+                </label>
+              </div>
+              <input
+                id="username"
+                className="tf-input"
+                type="text"
+                name="username"
+                autoComplete="username"
+                placeholder="e.g., emy88"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoFocus
+                aria-invalid={status.type === "error" && !username.trim() ? "true" : "false"}
+              />
+            </div>
 
-      <p>Already have an account? <Link to="/">Login</Link></p>
+            <div className="tf-field">
+              <div className="tf-labelRow">
+                <label className="tf-label" htmlFor="email">
+                  Email <span aria-hidden="true">(optional)</span>
+                </label>
+              </div>
+              <input
+                id="email"
+                className="tf-input"
+                type="email"
+                name="email"
+                inputMode="email"
+                autoComplete="email"
+                placeholder="name@college.edu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <p className="tf-help">You can skip email and log in with your username.</p>
+            </div>
+
+            <div className="tf-field">
+              <div className="tf-labelRow">
+                <label className="tf-label" htmlFor="password">
+                  Password
+                </label>
+                <span className="tf-label" aria-hidden="true">
+                  6+ characters
+                </span>
+                <button
+                  className="tf-labelAction"
+                  type="button"
+                  aria-pressed={showPassword}
+                  onClick={() => setShowPassword((v) => !v)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+              <input
+                id="password"
+                className="tf-input"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                autoComplete="new-password"
+                placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                aria-invalid={
+                  status.type === "error" && (!password || password.length < 6) ? "true" : "false"
+                }
+              />
+            </div>
+
+            {status.type === "error" ? (
+              <p className="tf-error" role="alert">
+                {status.message}
+              </p>
+            ) : null}
+
+            <div className="tf-actions">
+              <button className="tf-button" type="submit" disabled={status.type === "loading"}>
+                {status.type === "loading" ? "Creating…" : "Create account"}
+              </button>
+              <Link className="tf-button tf-buttonSecondary" to="/" style={{ textAlign: "center" }}>
+                Back to login
+              </Link>
+            </div>
+
+            <p className="tf-footnote">
+              Already have an account? <Link to="/">Log in</Link>
+            </p>
+          </form>
+        </section>
+      </div>
     </div>
   );
 }
