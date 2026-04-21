@@ -29,8 +29,9 @@ export default function Signup() {
       });
       setStatus({ type: "success", message: "Account created. You can log in now." });
       navigate("/");
-    } catch {
-      setStatus({ type: "error", message: "Signup failed. Try a different username (or email)." });
+    } catch (err) {
+      const msg = err.response?.data?.error || "Signup failed. Try a different username (or email).";
+      setStatus({ type: "error", message: msg });
     }
   };
 

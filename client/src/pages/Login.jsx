@@ -22,8 +22,9 @@ export default function Login() {
       const res = await API.post("/auth/login", { username, password });
       localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
-    } catch {
-      setStatus({ type: "error", message: "Login failed. Check your details and try again." });
+    } catch (err) {
+      const msg = err.response?.data?.error || "Login failed. Check your details and try again.";
+      setStatus({ type: "error", message: msg });
     }
   };
 
