@@ -20,10 +20,7 @@ export default function Signup() {
         setStatus({ type: "error", message: "Enter a username and a password." });
         return;
       }
-      if (password.length < 6) {
-        setStatus({ type: "error", message: "Password should be at least 6 characters." });
-        return;
-      }
+
       setStatus({ type: "loading", message: "" });
       await API.post("/auth/signup", {
         username,
@@ -120,9 +117,7 @@ export default function Signup() {
                 <label className="tf-label" htmlFor="password">
                   Password
                 </label>
-                <span className="tf-label" aria-hidden="true">
-                  6+ characters
-                </span>
+
                 <button
                   className="tf-labelAction"
                   type="button"
@@ -143,7 +138,7 @@ export default function Signup() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 aria-invalid={
-                  status.type === "error" && (!password || password.length < 6) ? "true" : "false"
+                  status.type === "error" && !password ? "true" : "false"
                 }
               />
             </div>
