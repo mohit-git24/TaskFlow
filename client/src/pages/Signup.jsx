@@ -8,6 +8,7 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showEmail, setShowEmail] = useState(false);
   const [status, setStatus] = useState({ type: "idle", message: "" });
   const navigate = useNavigate();
 
@@ -24,7 +25,11 @@ export default function Signup() {
         return;
       }
       setStatus({ type: "loading", message: "" });
-      await API.post("/auth/signup", { username, email: email.trim() ? email : undefined, password });
+      await API.post("/auth/signup", {
+        username,
+        email: showEmail && email.trim() ? email : undefined,
+        password,
+      });
       setStatus({ type: "success", message: "Account created. You can log in now." });
       navigate("/");
     } catch {
@@ -48,7 +53,7 @@ export default function Signup() {
         <section className="tf-card" aria-label="Sign up">
           <h2 className="tf-h1">Create account</h2>
           <p className="tf-help" style={{ marginTop: "8px" }}>
-            Use a real email format; passwords are stored securely on the server.
+            Sign up with a username and password. Email is optional.
           </p>
 
           <form className="tf-form" onSubmit={handleSignup} style={{ marginTop: "16px" }}>
@@ -62,9 +67,11 @@ export default function Signup() {
                 id="username"
                 className="tf-input"
                 type="text"
-                name="username"
-                autoComplete="username"
-                placeholder="e.g., emy88"
+                name="tf_username"
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                placeholder="Enter username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -75,22 +82,37 @@ export default function Signup() {
 
             <div className="tf-field">
               <div className="tf-labelRow">
-                <label className="tf-label" htmlFor="email">
-                  Email <span aria-hidden="true">(optional)</span>
-                </label>
+                <span className="tf-label">Email</span>
+                <button
+                  className="tf-labelAction"
+                  type="button"
+                  aria-pressed={showEmail}
+                  onClick={() => setShowEmail((v) => !v)}
+                >
+                  {showEmail ? "Remove" : "Add (optional)"}
+                </button>
               </div>
-              <input
-                id="email"
-                className="tf-input"
-                type="email"
-                name="email"
-                inputMode="email"
-                autoComplete="email"
-                placeholder="name@college.edu"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <p className="tf-help">You can skip email and log in with your username.</p>
+
+              {showEmail ? (
+                <>
+                  <input
+                    id="email"
+                    className="tf-input"
+                    type="email"
+                    name="tf_email"
+                    inputMode="email"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    placeholder="Enter email (optional)"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <p className="tf-help">Optional: helpful if you want a recovery contact later.</p>
+                </>
+              ) : (
+                <p className="tf-help">Not required. You can always add it later.</p>
+              )}
             </div>
 
             <div className="tf-field">

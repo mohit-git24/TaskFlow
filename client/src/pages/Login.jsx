@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import mark from "../assets/taskflow-mark.svg";
 
 export default function Login() {
-  const [identifier, setIdentifier] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState({ type: "idle", message: "" });
@@ -14,12 +14,12 @@ export default function Login() {
     e.preventDefault();
     setStatus({ type: "idle", message: "" });
     try {
-      if (!identifier.trim() || !password) {
-        setStatus({ type: "error", message: "Enter your username (or email) and password." });
+      if (!username.trim() || !password) {
+        setStatus({ type: "error", message: "Enter your username and password." });
         return;
       }
       setStatus({ type: "loading", message: "" });
-      const res = await API.post("/auth/login", { identifier, password });
+      const res = await API.post("/auth/login", { username, password });
       localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
     } catch {
@@ -49,22 +49,24 @@ export default function Login() {
           <form className="tf-form" onSubmit={handleLogin} style={{ marginTop: "16px" }}>
             <div className="tf-field">
               <div className="tf-labelRow">
-                <label className="tf-label" htmlFor="identifier">
-                  Username or email
+                <label className="tf-label" htmlFor="username">
+                  Username
                 </label>
               </div>
               <input
-                id="identifier"
+                id="username"
                 className="tf-input"
                 type="text"
-                name="identifier"
-                autoComplete="username"
-                placeholder="e.g., emy88 or name@college.edu"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
+                name="tf_username"
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                placeholder="Enter username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 autoFocus
-                aria-invalid={status.type === "error" && !identifier.trim() ? "true" : "false"}
+                aria-invalid={status.type === "error" && !username.trim() ? "true" : "false"}
               />
             </div>
 
